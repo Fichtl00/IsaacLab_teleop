@@ -8,6 +8,16 @@ import gymnasium as gym
 from . import agents
 
 gym.register(
+    id="Isaac-PickPlace-G1-UpperBodyIK-Abs-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.pickplace_g1_upperbody_ik_env_cfg:PickPlaceG1UpperBodyIKEnvCfg",
+        "robomimic_bc_cfg_entry_point": f"{agents.__name__}:robomimic/bc_rnn_low_dim.json",
+    },
+    disable_env_checker=True,
+)
+
+gym.register(
     id="Isaac-PickPlace-GR1T2-Abs-v0",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     kwargs={
@@ -53,6 +63,16 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": f"{__name__}.pickplace_unitree_g1_inspire_hand_env_cfg:PickPlaceG1InspireFTPEnvCfg",
         "robomimic_bc_cfg_entry_point": f"{agents.__name__}:robomimic/bc_rnn_low_dim.json",
+    },
+    disable_env_checker=True,
+)
+
+gym.register(
+    id="Isaac-PickPlace-G1-Dex3FTP-Abs-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.pickplace_unitree_g1_dex_3_hand_env_cfg:PickPlaceG1Dex3FTPEnvCfg",
+        "robomimic_bc_cfg_entry_point": f"{agents.__name__}:robomimic/bc_rnn_image_g1_dex3.json",
     },
     disable_env_checker=True,
 )

@@ -23,6 +23,11 @@ from isaaclab.app import AppLauncher
 parser = argparse.ArgumentParser(description="Tutorial on creating an empty stage.")
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
+
+# Add streaming and headless arguments
+parser.add_argument("--streaming", action="store_true", help="Enable streaming mode")
+parser.add_argument("--no-window", action="store_true", help="Run headless without window")
+
 # parse the arguments
 args_cli = parser.parse_args()
 # launch omniverse app

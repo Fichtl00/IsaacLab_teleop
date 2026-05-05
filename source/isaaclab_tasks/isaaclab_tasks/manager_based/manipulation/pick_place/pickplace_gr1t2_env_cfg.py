@@ -1,13 +1,14 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
+# Copyright (c) 2022-2026, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 import tempfile
+
 import torch
+from pink.tasks import DampingTask, FrameTask
 
 import carb
-from pink.tasks import DampingTask, FrameTask
 
 import isaaclab.controllers.utils as ControllerUtils
 import isaaclab.envs.mdp as base_mdp
@@ -28,6 +29,7 @@ from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.sim.spawners.from_files.from_files_cfg import GroundPlaneCfg, UsdFileCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR, ISAACLAB_NUCLEUS_DIR
+from isaaclab.utils.math import quat_from_euler_xyz
 
 from . import mdp
 
@@ -39,24 +41,106 @@ from isaaclab_assets.robots.fourier import GR1T2_HIGH_PD_CFG  # isort: skip
 ##
 @configclass
 class ObjectTableSceneCfg(InteractiveSceneCfg):
+    """Configuration for the GR1T2 Pick Place Base Scene."""
+    # ground plane
+    ground = AssetBaseCfg(prim_path="/World/defaultGroundPlane", spawn=sim_utils.GroundPlaneCfg())
 
-    # Table
-    packing_table = AssetBaseCfg(
-        prim_path="/World/envs/env_.*/PackingTable",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=[0.0, 0.55, 0.0], rot=[1.0, 0.0, 0.0, 0.0]),
-        spawn=UsdFileCfg(
-            usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/PackingTable/packing_table.usd",
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
-        ),
+    # lights
+    dome_light = AssetBaseCfg(
+        prim_path="/World/Light", spawn=sim_utils.DomeLightCfg(intensity=3000.0, color=(0.75, 0.75, 0.75))
     )
 
-    object = RigidObjectCfg(
-        prim_path="{ENV_REGEX_NS}/Object",
-        init_state=RigidObjectCfg.InitialStateCfg(pos=[-0.45, 0.45, 0.9996], rot=[1, 0, 0, 0]),
+    wall = AssetBaseCfg(
+         prim_path="{ENV_REGEX_NS}/wall", 
+         init_state=AssetBaseCfg.InitialStateCfg(pos=[1.75, -1.6129, 1.25]), #rot=[0.0, 0.0, 1.0, 0.0]),
+         spawn=sim_utils.UsdFileCfg(
+          usd_path=f"/home/omniverse-2/Documents/Benedikt BA/HumanoidBoehringer/Assets/Assets/Environment/WallwithLogo.usd"),
+    )
+ 
+    scanner = AssetBaseCfg(
+         prim_path="{ENV_REGEX_NS}/scanner", 
+         init_state=AssetBaseCfg.InitialStateCfg(pos=[3.0037, -1.09541, 1.17238], rot=quat_from_euler_xyz(torch.tensor([0.0]),torch.tensor([3.141]),torch.tensor([0.0]))),#[2.0, 0.0, 0.0, 0.0]),
+         spawn=sim_utils.UsdFileCfg(usd_path=f"/home/omniverse-2/Documents/Benedikt BA/HumanoidBoehringer/Assets/Assets/axioscan_hohl_.usdc"),
+    )
+
+    computer = AssetBaseCfg(
+         prim_path="{ENV_REGEX_NS}/computer", 
+         init_state=AssetBaseCfg.InitialStateCfg(pos=[1.72224, -1.23295, 0.93394]),# rot=[1.0, 0.0, 0.0, 0.0]),
+         spawn=sim_utils.UsdFileCfg(usd_path=f"/home/omniverse-2/Documents/Benedikt BA/HumanoidBoehringer/Assets/Assets/Environment/Computer.usd"),
+    )
+    
+    keyboard = AssetBaseCfg(
+         prim_path="{ENV_REGEX_NS}/keyboard", 
+         init_state=AssetBaseCfg.InitialStateCfg(pos=[1.58091, -0.77091, 0.76732]),# rot=[1.0, 0.0, 0.0, 0.0]),
+         spawn=sim_utils.UsdFileCfg(usd_path=f"/home/omniverse-2/Documents/Benedikt BA/HumanoidBoehringer/Assets/Assets/Environment/Keyboard.usd"),
+    )
+
+    mouse = AssetBaseCfg(
+         prim_path="{ENV_REGEX_NS}/mouse", 
+         init_state=AssetBaseCfg.InitialStateCfg(pos=[0.0, 0.0, 0.0]),# rot=[1.0, 0.0, 0.0, 0.0]),
+         spawn=sim_utils.UsdFileCfg(usd_path=f"/home/omniverse-2/Documents/Benedikt BA/HumanoidBoehringer/Assets/Assets/Environment/Mouse.usd"),
+    )
+
+    screen = AssetBaseCfg(
+         prim_path="{ENV_REGEX_NS}/screen", 
+         init_state=AssetBaseCfg.InitialStateCfg(pos=[1.56639, -0.98101, 0.87589]),# rot=[1.0, 0.0, 0.0, 0.0]),
+         spawn=sim_utils.UsdFileCfg(usd_path=f"/home/omniverse-2/Documents/Benedikt BA/HumanoidBoehringer/Assets/Assets/Environment/Screen.usd"),
+    )
+
+    table = AssetBaseCfg(
+         prim_path="{ENV_REGEX_NS}/table", 
+         init_state=AssetBaseCfg.InitialStateCfg(pos=[2.28749, -1.0, 0.0]), #rot=[1.0, 0.0, 0.0, 0.0]),
+         spawn=sim_utils.UsdFileCfg(
+            usd_path=f"/home/omniverse-2/Documents/Benedikt BA/HumanoidBoehringer/Assets/Assets/table.usd"#,
+            #rigid_props=sim_utils.RigidBodyPropertiesCfg()
+            ),
+    )
+
+    Objekttraeger = RigidObjectCfg(
+        prim_path="{ENV_REGEX_NS}/Objekttraeger",
+        init_state=RigidObjectCfg.InitialStateCfg(
+            pos=[2.21705, -0.76759, 0.97973], 
+            rot=[0.7071, 0.7071, 0.0, 0.0]),
         spawn=UsdFileCfg(
-            usd_path=f"{ISAACLAB_NUCLEUS_DIR}/Mimic/pick_place_task/pick_place_assets/steering_wheel.usd",
-            scale=(0.75, 0.75, 0.75),
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(),
+            usd_path=f"/home/omniverse-2/Documents/Benedikt BA/HumanoidBoehringer/Assets/Assets/ObjekttraegerGeteilt.usd",
+            #scale=(0.75, 0.75, 0.75),
+            rigid_props=sim_utils.RigidBodyPropertiesCfg(
+               rigid_body_enabled=True,
+            ),
+            mass_props=sim_utils.MassPropertiesCfg(mass=1.0),
+            collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=True),
+        ),
+    ) 
+
+    SlideHolder = RigidObjectCfg(
+        prim_path="{ENV_REGEX_NS}/SlideHolder",
+        init_state=RigidObjectCfg.InitialStateCfg(
+            pos=[2.21637, -0.93644, 0.76965], 
+            rot=[0.7071, 0.7071, 0.0, 0.0]),
+        spawn=UsdFileCfg(
+            usd_path=f"/home/omniverse-2/Documents/Benedikt BA/HumanoidBoehringer/Assets/Assets/SlideHolderUpdated.usd",
+            #scale=(0.75, 0.75, 0.75),
+            rigid_props=sim_utils.RigidBodyPropertiesCfg(
+                rigid_body_enabled=True,
+            ),
+            mass_props=sim_utils.MassPropertiesCfg(mass=1.0),
+            collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=True),
+        ),
+    )  
+    Vorspannhilfe = RigidObjectCfg(
+        prim_path="{ENV_REGEX_NS}/Vorspannhilfe",
+        init_state=RigidObjectCfg.InitialStateCfg(
+            pos=[2.43701, -0.73013, 0.80463], 
+            #rot=[0.0, 0.0, 0.0, 0.0]
+            ),
+        spawn=UsdFileCfg(
+            usd_path=f"/home/omniverse-2/Documents/Benedikt BA/HumanoidBoehringer/Assets/Assets/Vorspannhilfe/VorspannhilfeBlender.usd",
+            #scale=(0.75, 0.75, 0.75),
+            rigid_props=sim_utils.RigidBodyPropertiesCfg(
+                rigid_body_enabled=True,
+            ),
+            mass_props=sim_utils.MassPropertiesCfg(mass=1.0),
+            collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=True),
         ),
     )
 
@@ -171,7 +255,8 @@ class ActionsCfg:
             base_link_name="base_link",
             num_hand_joints=22,
             show_ik_warnings=False,
-            fail_on_joint_limit_violation=False,  # Determines whether to pink solver will fail due to a joint limit violation
+            # Determines whether Pink IK solver will fail due to a joint limit violation
+            fail_on_joint_limit_violation=False,
             variable_input_tasks=[
                 FrameTask(
                     "GR1T2_fourier_hand_6dof_left_hand_pitch_link",
@@ -233,8 +318,8 @@ class ObservationsCfg:
         )
         robot_root_pos = ObsTerm(func=base_mdp.root_pos_w, params={"asset_cfg": SceneEntityCfg("robot")})
         robot_root_rot = ObsTerm(func=base_mdp.root_quat_w, params={"asset_cfg": SceneEntityCfg("robot")})
-        object_pos = ObsTerm(func=base_mdp.root_pos_w, params={"asset_cfg": SceneEntityCfg("object")})
-        object_rot = ObsTerm(func=base_mdp.root_quat_w, params={"asset_cfg": SceneEntityCfg("object")})
+        object_pos = ObsTerm(func=base_mdp.root_pos_w, params={"asset_cfg": SceneEntityCfg("Objekttraeger")})
+        object_rot = ObsTerm(func=base_mdp.root_quat_w, params={"asset_cfg": SceneEntityCfg("Objekttraeger")})
         robot_links_state = ObsTerm(func=mdp.get_all_robot_link_state)
 
         left_eef_pos = ObsTerm(func=mdp.get_eef_pos, params={"link_name": "left_hand_roll_link"})
@@ -268,10 +353,19 @@ class TerminationsCfg:
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
     object_dropping = DoneTerm(
-        func=mdp.root_height_below_minimum, params={"minimum_height": 0.5, "asset_cfg": SceneEntityCfg("object")}
+        func=mdp.root_height_below_minimum, params={"minimum_height": 0.5, "asset_cfg": SceneEntityCfg("Objekttraeger")}
     )
 
-    success = DoneTerm(func=mdp.task_done_pick_place, params={"task_link_name": "right_hand_roll_link"})
+    success = DoneTerm(func=mdp.task_done_pick_place, params={
+        "task_link_name": "right_hand_roll_link",
+        "object_cfg": SceneEntityCfg("Objekttraeger"),
+        "min_x": 2.32,   #2.373 - etwas Puffer
+        "max_x": 2.42,   #2.373 + etwas Puffer
+        "min_y": -0.75,   #-0.700 - etwas Puffer
+        "max_y": -0.65,   #-0.700 + etwas Puffer
+        "max_height": 0.82,  #0.769 + etwas Puffer nach oben
+        }
+        )
 
 
 @configclass
@@ -289,7 +383,7 @@ class EventCfg:
                 "y": [-0.01, 0.01],
             },
             "velocity_range": {},
-            "asset_cfg": SceneEntityCfg("object"),
+            "asset_cfg": SceneEntityCfg("Objekttraeger"),
         },
     )
 
@@ -327,44 +421,46 @@ class PickPlaceGR1T2EnvCfg(ManagerBasedRLEnvCfg):
     # Idle action to hold robot in default pose
     # Action format: [left arm pos (3), left arm quat (4), right arm pos (3), right arm quat (4),
     #                 left hand joint pos (11), right hand joint pos (11)]
-    idle_action = torch.tensor([
-        -0.22878,
-        0.2536,
-        1.0953,
-        0.5,
-        0.5,
-        -0.5,
-        0.5,
-        0.22878,
-        0.2536,
-        1.0953,
-        0.5,
-        0.5,
-        -0.5,
-        0.5,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-    ])
+    idle_action = torch.tensor(
+        [
+            -0.22878,
+            0.2536,
+            1.0953,
+            0.5,
+            0.5,
+            -0.5,
+            0.5,
+            0.22878,
+            0.2536,
+            1.0953,
+            0.5,
+            0.5,
+            -0.5,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+        ]
+    )
 
     def __post_init__(self):
         """Post initialization."""
