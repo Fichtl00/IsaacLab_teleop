@@ -29,7 +29,6 @@ from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.sim.spawners.from_files.from_files_cfg import GroundPlaneCfg, UsdFileCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR, ISAACLAB_NUCLEUS_DIR
-from isaaclab.utils.math import quat_from_euler_xyz
 
 from . import mdp
 
@@ -42,111 +41,24 @@ from isaaclab_assets.robots.fourier import GR1T2_HIGH_PD_CFG  # isort: skip
 @configclass
 class ObjectTableSceneCfg(InteractiveSceneCfg):
     """Configuration for the GR1T2 Pick Place Base Scene."""
-    # ground plane
-    ground = AssetBaseCfg(prim_path="/World/defaultGroundPlane", spawn=sim_utils.GroundPlaneCfg())
 
-    # lights
-    dome_light = AssetBaseCfg(
-        prim_path="/World/Light", spawn=sim_utils.DomeLightCfg(intensity=3000.0, color=(0.75, 0.75, 0.75))
-    )
-
-    wall = AssetBaseCfg(
-         prim_path="{ENV_REGEX_NS}/wall", 
-         init_state=AssetBaseCfg.InitialStateCfg(pos=[1.75, -1.6129, 1.25]), #rot=[0.0, 0.0, 1.0, 0.0]),
-         spawn=sim_utils.UsdFileCfg(
-          usd_path=f"/workspace/isaaclab/source/isaaclab_assets/custom_assets/HumanoidBoehringer/Assets/Assets/Environment/WallwithLogo.usd"),
-    )
-    
- 
-    scanner = AssetBaseCfg(
-         prim_path="{ENV_REGEX_NS}/scanner", 
-         init_state=AssetBaseCfg.InitialStateCfg(pos=[3.0037, -1.09541, 1.17238], rot=quat_from_euler_xyz(torch.tensor([0.0]),torch.tensor([3.141]),torch.tensor([0.0]))),#[2.0, 0.0, 0.0, 0.0]),
-         spawn=sim_utils.UsdFileCfg(usd_path=f"/workspace/isaaclab/source/isaaclab_assets/custom_assets/HumanoidBoehringer/Assets/Assets/axioscan_hohl_.usdc"),
-    )
-    
-
-    computer = AssetBaseCfg(
-         prim_path="{ENV_REGEX_NS}/computer", 
-         init_state=AssetBaseCfg.InitialStateCfg(pos=[1.72224, -1.23295, 0.93394]),# rot=[1.0, 0.0, 0.0, 0.0]),
-         spawn=sim_utils.UsdFileCfg(usd_path=f"/workspace/isaaclab/source/isaaclab_assets/custom_assets/HumanoidBoehringer/Assets/Assets/Environment/Computer.usd"),
-    )
-    
-    
-    keyboard = AssetBaseCfg(
-         prim_path="{ENV_REGEX_NS}/keyboard", 
-         init_state=AssetBaseCfg.InitialStateCfg(pos=[1.58091, -0.77091, 0.76732]),# rot=[1.0, 0.0, 0.0, 0.0]),
-         spawn=sim_utils.UsdFileCfg(usd_path=f"/workspace/isaaclab/source/isaaclab_assets/custom_assets/HumanoidBoehringer/Assets/Assets/Environment/Keyboard.usd"),
-    )
-    
-
-    mouse = AssetBaseCfg(
-         prim_path="{ENV_REGEX_NS}/mouse", 
-         init_state=AssetBaseCfg.InitialStateCfg(pos=[0.0, 0.0, 0.0]),# rot=[1.0, 0.0, 0.0, 0.0]),
-         spawn=sim_utils.UsdFileCfg(usd_path=f"/workspace/isaaclab/source/isaaclab_assets/custom_assets/HumanoidBoehringer/Assets/Assets/Environment/Mouse.usd"),
-    )
-    
-
-    screen = AssetBaseCfg(
-         prim_path="{ENV_REGEX_NS}/screen", 
-         init_state=AssetBaseCfg.InitialStateCfg(pos=[1.56639, -0.98101, 0.87589]),# rot=[1.0, 0.0, 0.0, 0.0]),
-         spawn=sim_utils.UsdFileCfg(usd_path=f"/workspace/isaaclab/source/isaaclab_assets/custom_assets/HumanoidBoehringer/Assets/Assets/Environment/Screen.usd"),
-    )
-    
-
-    table = AssetBaseCfg(
-         prim_path="{ENV_REGEX_NS}/table", 
-         init_state=AssetBaseCfg.InitialStateCfg(pos=[2.28749, -1.0, 0.0]), #rot=[1.0, 0.0, 0.0, 0.0]),
-         spawn=sim_utils.UsdFileCfg(
-            usd_path=f"/workspace/isaaclab/source/isaaclab_assets/custom_assets/HumanoidBoehringer/Assets/Assets/table.usd"#,
-            #rigid_props=sim_utils.RigidBodyPropertiesCfg()
-            ),
+    # Table
+    packing_table = AssetBaseCfg(
+        prim_path="/World/envs/env_.*/PackingTable",
+        init_state=AssetBaseCfg.InitialStateCfg(pos=[0.0, 0.55, 0.0], rot=[1.0, 0.0, 0.0, 0.0]),
+        spawn=UsdFileCfg(
+            usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/PackingTable/packing_table.usd",
+            rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
+        ),
     )
 
     object = RigidObjectCfg(
-        prim_path="{ENV_REGEX_NS}/object",
-        init_state=RigidObjectCfg.InitialStateCfg(
-            pos=[2.21705, -0.76759, 0.97973], 
-            rot=[0.7071, 0.7071, 0.0, 0.0]),
+        prim_path="{ENV_REGEX_NS}/Object",
+        init_state=RigidObjectCfg.InitialStateCfg(pos=[-0.45, 0.45, 0.9996], rot=[1, 0, 0, 0]),
         spawn=UsdFileCfg(
-            usd_path=f"/workspace/isaaclab/source/isaaclab_assets/custom_assets/HumanoidBoehringer/Assets/Assets/ObjekttraegerGeteilt.usd",
-            #scale=(0.75, 0.75, 0.75),
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(
-               rigid_body_enabled=True,
-            ),
-            mass_props=sim_utils.MassPropertiesCfg(mass=1.0),
-            collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=True),
-        ),
-    ) 
-
-    SlideHolder = RigidObjectCfg(
-        prim_path="{ENV_REGEX_NS}/SlideHolder",
-        init_state=RigidObjectCfg.InitialStateCfg(
-            pos=[2.21637, -0.93644, 0.76965], 
-            rot=[0.7071, 0.7071, 0.0, 0.0]),
-        spawn=UsdFileCfg(
-            usd_path=f"/workspace/isaaclab/source/isaaclab_assets/custom_assets/HumanoidBoehringer/Assets/Assets/SlideHolderUpdated.usd",
-            #scale=(0.75, 0.75, 0.75),
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(
-                rigid_body_enabled=True,
-            ),
-            mass_props=sim_utils.MassPropertiesCfg(mass=1.0),
-            collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=True),
-        ),
-    )  
-    Vorspannhilfe = RigidObjectCfg(
-        prim_path="{ENV_REGEX_NS}/Vorspannhilfe",
-        init_state=RigidObjectCfg.InitialStateCfg(
-            pos=[2.43701, -0.73013, 0.80463], 
-            #rot=[0.0, 0.0, 0.0, 0.0]
-            ),
-        spawn=UsdFileCfg(
-            usd_path=f"/workspace/isaaclab/source/isaaclab_assets/custom_assets/HumanoidBoehringer/Assets/Assets/Vorspannhilfe/VorspannhilfeBlender.usd",
-            #scale=(0.75, 0.75, 0.75),
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(
-                rigid_body_enabled=True,
-            ),
-            mass_props=sim_utils.MassPropertiesCfg(mass=1.0),
-            collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=True),
+            usd_path=f"{ISAACLAB_NUCLEUS_DIR}/Mimic/pick_place_task/pick_place_assets/steering_wheel.usd",
+            scale=(0.75, 0.75, 0.75),
+            rigid_props=sim_utils.RigidBodyPropertiesCfg(),
         ),
     )
 
@@ -362,16 +274,7 @@ class TerminationsCfg:
         func=mdp.root_height_below_minimum, params={"minimum_height": 0.5, "asset_cfg": SceneEntityCfg("object")}
     )
 
-    success = DoneTerm(func=mdp.task_done_pick_place, params={
-        "task_link_name": "right_hand_roll_link",
-        "object_cfg": SceneEntityCfg("object"),
-        "min_x": 2.32,   #2.373 - etwas Puffer
-        "max_x": 2.42,   #2.373 + etwas Puffer
-        "min_y": -0.75,   #-0.700 - etwas Puffer
-        "max_y": -0.65,   #-0.700 + etwas Puffer
-        "max_height": 0.82,  #0.769 + etwas Puffer nach oben
-        }
-        )
+    success = DoneTerm(func=mdp.task_done_pick_place, params={"task_link_name": "right_hand_roll_link"})
 
 
 @configclass

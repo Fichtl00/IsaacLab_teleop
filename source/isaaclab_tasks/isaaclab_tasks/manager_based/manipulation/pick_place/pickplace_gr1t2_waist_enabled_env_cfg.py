@@ -12,7 +12,7 @@ from isaaclab.devices.openxr.retargeters.humanoid.fourier.gr1t2_retargeter impor
 from isaaclab.envs import ManagerBasedRLEnvCfg
 from isaaclab.utils import configclass
 
-from .pickplace_gr1t2_env_cfg import ActionsCfg, EventCfg, ObjectTableSceneCfg, ObservationsCfg, TerminationsCfg
+from .pickplace_gr1t2_env_cfg_base import ActionsCfg, EventCfg, ObjectTableSceneCfg, ObservationsCfg, TerminationsCfg
 
 
 @configclass
